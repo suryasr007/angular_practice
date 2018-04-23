@@ -1,0 +1,96 @@
+<button (click)="showForm = !showForm" class="btn btn-dark my-4" data-toggle="modal" data-target="#formModal">Add Training</button>
+
+<div id="formModal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Enter Training Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #trainingForm="ngForm" (ngSubmit)="onSubmit(trainingForm)">
+          <div class="form-group">
+            <label class="col-form-label">Title:</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              name="title" 
+              [(ngModel)]="training.title"
+              #title="ngModel"
+              required
+              minlength="4"
+              [ngClass]="{'is-invalid':title.errors && title.touched}"
+            >
+            <div [hidden]="!title.errors?.required" class="invalid-feedback">
+              Title required
+            </div>
+            <div [hidden]="!title.errors?.minlength" class="invalid-feedback">
+              Must be atleast 4 characters
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-form-label">Tags:</label>
+            <input type="text" class="form-control" name="tags" [(ngModel)]="training.tags">            
+          </div>
+          <div class="form-group">
+            <label class="col-form-label">Description:</label>
+            <textarea class="form-control" name="description" [(ngModel)]="training.description"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="col-form-label">email:</label>
+            <input type="email" 
+              class="form-control" 
+              name="email" 
+              [(ngModel)]="training.email"
+              [ngClass]="{'is-invalid':trainingEmail.errors && trainingEmail.touched}"
+              #trainingEmail="ngModel"
+              required
+              pattern = "^[_a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$"
+            >
+            <div [hidden]="!trainingEmail.errors?.required" class="invalid-feedback">
+              Email Required
+            </div>
+            <div [hidden]="!trainingEmail.errors?.pattern" class="invalid-feedback">
+                Invalid Email
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button [disabled]="!trainingForm.form.valid" class="btn btn-block mb-3" [ngClass]="currentClasses">Add Training</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Trainings</h2>
+
+
+<ul *ngIf="loaded && trainings?.length > 0">
+  <li class="card card-body mb-2" *ngFor="let training of trainings" [class.bg-light]="training.completed" [style.border]="training.completed ? 'solid 1px blue':''">
+
+    <!-- <img *ngIf="training.image" [src]="training.image" class="img-fluid"> -->
+
+    <!-- <img *ngIf="training.image" src="{{ training.image }}" class="img-fluid"> -->
+
+    <!-- <img *ngIf="training.image" bind-src="training.image" class="img-fluid"> -->
+
+    <!-- <h3 [ngStyle]="currentStyle">{{training.title | uppercase}}</h3> -->
+    <h3>{{training.title | uppercase}} <small *ngIf="training.tags && training.description && training.email"><button (click)="training.hide = !training.hide" class="btn btn-light"><i [ngClass]="training.hide?'fa fa-angle-down':'fa fa-angle-up'"></i></button></small> </h3>
+    <ul class="list-group" *ngIf="!training.hide && showExtended && training.tags && training.description && training.email">
+      <li class="list-group-item">{{training.email}}</li>      
+      <li class="list-group-item">{{training.tags}}</li>
+      <li class="list-group-item">{{training.description}}</li>
+      <li class="list-group-item">Date: {{ training.date | date }}</li>
+
+    </ul>
+  </li>
+</ul>
+
+<h4 *ngIf="trainings?.length == 0">No trainings found</h4>
+<h4 *ngIf="!loaded">Loading trainings</h4>
+
+<!-- safe-traversal-operator (?.) is used to guard against dereferencing a null value to ignore the unset variables-->
